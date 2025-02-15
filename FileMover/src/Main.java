@@ -3,28 +3,31 @@ import java.nio.file.*;
 import java.util.Scanner;
 
 public class Main {
-    static Scanner sc = new Scanner(System.in);
-    static Path currentPath;
-    static Path newPath;
-    static PrintWriter file;
-    static FileWriter history;
-    static Path targetPath;
-    static Scanner fsc = new Scanner(String.valueOf(history));
+    //Scanner sc = new Scanner(System.in);
+    // Path currentPath;
+    // PrintWriter file;
+    // FileWriter history;
+    // Path targetPath;
+    // Scanner fsc = new Scanner(String.valueOf(history));
 
     public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        String PATH = "Movable.txt";
 
-        currentPath = Path.of("Movable.txt").toAbsolutePath();
+        Path currentPath = Path.of(PATH).toAbsolutePath();
         System.out.println("Current dir: " + "\n" + currentPath);
         System.out.println("New Path: ");
-        newPath = Paths.get(sc.nextLine());
-        getDirectory();
-        moveFile(); // Now correctly moves and updates the file
+        Path newPath = Paths.get(sc.nextLine());
+
+        getDirectory(PATH);
+        moveFile(currentPath, newPath); // Now correctly moves and updates the file
+        historyFile(newPath);
 
     }
 
-    static void getDirectory() {
+    static void getDirectory(String path) {
         try {
-            file = new PrintWriter("Movable.txt");
+            PrintWriter file = new PrintWriter(path);
             /*
             file.append("This file will be updated once it is moved to its new directory!");
             /* Once the file is moved it will display a different message:
@@ -36,21 +39,21 @@ public class Main {
         }
     }
 
-    static void moveFile() throws IOException {
+    static void moveFile(Path currentPath, Path newPath) throws IOException {
         // Ensure the new path includes the file name, not just the directory
-        targetPath = newPath.resolve(currentPath.getFileName());
+        Path targetPath = newPath.resolve(currentPath.getFileName());
 
         if (!Files.exists(targetPath)) {
             System.out.println("File moved successfully!");
             Files.move(currentPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            historyFile();
+            historyFile(newPath);
             // Update file contents after moving
         } else {
             System.out.println("This file already exists in this directory!");
         }
     }
     /*
-    static void clearFile(Path targetFile) {
+    void clearFile(Path targetFile) {
         // Clear the file and write new content to reflect the move
         try (FileOutputStream fos = new FileOutputStream(targetFile.toString(), false)) {
             String newContent = "This file was moved to a new directory!";
@@ -62,15 +65,25 @@ public class Main {
     }
 
      */
-    static void historyFile(){
+    static void historyFile(Path newPath) {
         try {
-            history = new FileWriter("History.txt");
+            // Write newPath to History.txt
+            FileWriter history = new FileWriter("History.txt");
             history.append(String.valueOf(newPath));
             history.close();
-            System.out.println("History updated.");
-            System.out.println(fsc.nextLine());
+
+            File file = new File("History.txt");
+            Scanner fsc = new Scanner(file);
+
+            if (fsc.hasNextLine()) {
+                System.out.println("History content: " + fsc.nextLine());
+            }
+            String update = fsc.nextLine();
+
+            fsc.close();  // Close scanner
         } catch (IOException exception) {
             System.out.println("Error!");
             exception.printStackTrace();
         }
     }
+}
