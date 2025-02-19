@@ -6,7 +6,7 @@ import java.io.File;
 public class MyFrame extends JFrame {
     public MyFrame() {
         // Set up the frame
-        setTitle("JFrame Example");
+        setTitle("Movable!");
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
@@ -20,16 +20,18 @@ public class MyFrame extends JFrame {
         JTextField textField2 = new JTextField(20);
 
         // Create buttons
-        JButton button1 = new JButton("From");
-        JButton button2 = new JButton("To");
+        JButton from1 = new JButton("From");
+        JButton to1 = new JButton("To");
+        JButton move = new JButton("Move");
 
-        textField1.setBounds(80, 100, 150, 30);
-        button1.setBounds(240, 100, 63, 30);
-        textField2.setBounds(80, 200, 150, 30);
-        button2.setBounds(240, 200, 63, 30);
+        textField1.setBounds(70, 100, 190, 30);
+        from1.setBounds(270, 100, 70, 30);
+        textField2.setBounds(70, 200, 190, 30);
+        to1.setBounds(270, 200, 70, 30);
+        move.setBounds(150, 270, 70,30);
 
         // Add action listeners
-        button1.addActionListener(new ActionListener() {
+       from1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int response = from.showOpenDialog(null);
@@ -41,7 +43,7 @@ public class MyFrame extends JFrame {
             }
         });
 
-        button2.addActionListener(new ActionListener() {
+       to1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int response = to.showSaveDialog(null);
@@ -54,9 +56,10 @@ public class MyFrame extends JFrame {
 
         // Add components to the frame
         add(textField1);
-        add(button1);
+        add(from1);
         add(textField2);
-        add(button2);
+        add(to1);
+        add(move);
     }
 
     public static void main(String[] args) {
