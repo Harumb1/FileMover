@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class MyFrame extends JFrame {
     public MyFrame() {
@@ -16,49 +20,67 @@ public class MyFrame extends JFrame {
         to.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         // Create text fields
-        JTextField textField1 = new JTextField(20);
-        JTextField textField2 = new JTextField(20);
+        JTextField moveFrom = new JTextField(20);
+        JTextField moveTo = new JTextField(20);
 
         // Create buttons
-        JButton from1 = new JButton("From");
-        JButton to1 = new JButton("To");
+        JButton frombutton = new JButton("From");
+        JButton tobutton = new JButton("To");
         JButton move = new JButton("Move");
 
-        textField1.setBounds(70, 100, 190, 30);
-        from1.setBounds(270, 100, 70, 30);
-        textField2.setBounds(70, 200, 190, 30);
-        to1.setBounds(270, 200, 70, 30);
+        moveFrom.setBounds(70, 100, 190, 30);
+        frombutton.setBounds(270, 100, 70, 30);
+        moveTo.setBounds(70, 200, 190, 30);
+        tobutton.setBounds(270, 200, 70, 30);
         move.setBounds(150, 270, 70,30);
 
         // Add action listeners
-       from1.addActionListener(new ActionListener() {
+       frombutton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int response = from.showOpenDialog(null);
                 if (response == JFileChooser.APPROVE_OPTION) {
                     File file = new File(from.getSelectedFile().getAbsolutePath());
-                    textField1.setText(String.valueOf(file));
-
+                    moveFrom.setText(String.valueOf(file));
                 }
             }
         });
 
-       to1.addActionListener(new ActionListener() {
+       tobutton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int response = to.showSaveDialog(null);
                 if(response == JFileChooser.APPROVE_OPTION){
                     File file = new File(to.getSelectedFile().getAbsolutePath());
-                    textField2.setText(String.valueOf(file));
+                    moveTo.setText(String.valueOf(file));
                 }
             }
         });
 
+       move.addActionListener(new ActionListener() {
+           @Override
+           public void actionPerformed(ActionEvent e) {
+               Path currentPath = Path.of(moveFrom.getText());
+               Path newPath = Path.of(moveFrom.getText());
+               Path targetPath = newPath.resolve(currentPath.getFileName());
+               if (!Files.exists(targetPath)) {
+                   System.out.println("File moved successfully!");
+                   try {
+                       Files.move(currentPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                   } catch (IOException ex) {
+                       throw new RuntimeException(ex);
+                   }
+               } else {
+                   System.out.println("This file already exists in this directory!");
+               }
+           }
+       });
+
         // Add components to the frame
-        add(textField1);
-        add(from1);
-        add(textField2);
-        add(to1);
+        add(moveFrom);
+        add(frombutton);
+        add(moveTo);
+        add(tobutton);
         add(move);
     }
 
@@ -68,4 +90,5 @@ public class MyFrame extends JFrame {
             frame.setVisible(true);
         });
     }
+
 }
