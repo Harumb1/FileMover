@@ -1,75 +1,93 @@
-import java.io.*;
-import java.nio.file.*;
-import java.util.Optional;
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
-public class FileMover{
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        String PATH = "Movable.txt";
+public class MyFrame extends JFrame {
+    public MyFrame() {
+        // Set up the frame
+        setTitle("Movable!");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null);
 
+        JFileChooser from = new JFileChooser();
+        JFileChooser to = new JFileChooser();
+        to.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        Path currentPath = Paths.get(readPathFromHistoryFile().orElse(""), PATH).toAbsolutePath();
-        System.out.println("Current dir: " + "\n" + currentPath);
-        System.out.println("New Path: ");
-        Path newPath = Paths.get(sc.nextLine());
+        // Create text fields
+        JTextField moveFrom = new JTextField(20);
+        JTextField moveTo = new JTextField(20);
 
-        getDirectory(PATH);
-        moveFile(currentPath, newPath); // Now correctly moves and updates the file
-        historyFile(newPath);
+        // Create buttons
+        JButton frombutton = new JButton("From");
+        JButton tobutton = new JButton("To");
+        JButton move = new JButton("Move");
 
+        moveFrom.setBounds(70, 100, 190, 30);
+        frombutton.setBounds(270, 100, 70, 30);
+        moveTo.setBounds(70, 200, 190, 30);
+        tobutton.setBounds(270, 200, 70, 30);
+        move.setBounds(150, 270, 70, 30);
+
+        // Add action listeners
+        frombutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int response = from.showOpenDialog(null);
+                if (response == JFileChooser.APPROVE_OPTION) {
+                    File file = new File(from.getSelectedFile().getAbsolutePath());
+                    moveFrom.setText(String.valueOf(file));
+                }
+            }
+        });
+
+        tobutton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int response = to.showSaveDialog(null);
+                if (response == JFileChooser.APPROVE_OPTION) {
+                    File file = new File(to.getSelectedFile().getAbsolutePath());
+                    moveTo.setText(String.valueOf(file));
+                }
+            }
+        });
+
+        move.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Path currentPath = Path.of(moveFrom.getText());
+                Path newPath = Path.of(moveTo.getText());
+                Path targetPath = newPath.resolve(currentPath.getFileName());
+                if (!Files.exists(targetPath)) {
+                    System.out.println("File moved successfully!");
+                    try {
+                        Files.move(currentPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    System.out.println("This file already exists in this directory!");
+                }
+            }
+        });
+
+        // Add components to the frame
+        add(moveFrom);
+        add(frombutton);
+        add(moveTo);
+        add(tobutton);
+        add(move);
     }
-    static Optional<String> readPathFromHistoryFile() {
-        Path historyFilePath = Path.of("History.txt").toAbsolutePath();
-        if (!Files.exists(historyFilePath)) return Optional.empty();
-        try {
-            String path = Files.readString(historyFilePath);
-            return Optional.of(path);
-        } catch (IOException e) {
-            return Optional.empty();
-        }
-    }
 
-    static void getDirectory(String path) {
-        try {
-            PrintWriter file = new PrintWriter(path);
-            file.close();
-        } catch (IOException exception) {
-            System.out.println("Error!");
-        }
-    }
-
-    static void moveFile(Path currentPath, Path newPath) throws IOException {
-        // Ensure the new path includes the file name, not just the directory
-        Path targetPath = newPath.resolve(currentPath.getFileName());
-
-        if (!Files.exists(targetPath)) {
-            System.out.println("File moved successfully!");
-            Files.move(currentPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            historyFile(newPath);
-            // Update file contents after moving
-        } else {
-            System.out.println("This file already exists in this directory!");
-        }
-    }
-
-    static void historyFile(Path newPath) {
-        try {
-            // Write newPath to History.txt
-            FileWriter history = new FileWriter("History.txt");
-            history.append(String.valueOf(newPath));
-            history.close();
-
-            File file = new File("History.txt");
-            Scanner fsc = new Scanner(file);
-            System.out.println("History content: " + fsc.nextLine());
-
-            // String updatePath = fsc.nextLine(); ????
-
-            fsc.close();  // Close scanner
-        } catch (IOException exception) {
-            System.out.println("Error!");
-            exception.printStackTrace();
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            MyFrame frame = new MyFrame();
+            frame.setVisible(true);
+        });
     }
 }
