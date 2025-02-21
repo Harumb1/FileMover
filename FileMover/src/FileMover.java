@@ -7,8 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-public class MyFrame extends JFrame {
-    public MyFrame() {
+public class FileMover extends JFrame {
+    public FileMover() {
         // Set up the frame
         setTitle("Movable!");
         setSize(400, 400);
